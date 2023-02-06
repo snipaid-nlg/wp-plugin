@@ -138,24 +138,103 @@ function snipaid_settings_page() {
 }
 add_action('admin_menu', 'snipaid_settings_page');
 ​
+// Adds a "Settings" Link in Plugin Overview
+add_filter( 'plugin_action_links_snipaid/snipaid.php', 'snipaid_settings_link' );
+function snipaid_settings_link( $links ) {
+	// Build and escape the URL.
+	$url = esc_url( add_query_arg(
+		'page',
+		'snipaid',
+		get_admin_url() . 'options-general.php'
+	) );
+	// Create the link.
+	$settings_link = "<a href='$url'>" . __( 'Settings' ) . '</a>';
+	// Adds the link to the end of the array.
+	array_push(
+		$links,
+		$settings_link
+	);
+	return $links;
+}
+​
 // Renders the content of the settings page.
 function snipaid_settings_content() {
-    $webhook_url = rest_url( '/snipaid/v1/receive-callback' );
+    if (isset($_POST['generate_api_key'])) {
+        $api_key = generate_and_save_api_key();
+    } else {
+        $api_key = get_option('snipaid_api_key');
+    }
+​
+    $webhook_url = rest_url( '/snipaid/v1/receive-callback' ) . '?api_key=' . $api_key;
+​
+    if (isset($_POST['save_settings'])) {
+        update_option('snipaid_options', [
+          'post_status' => sanitize_text_field($_POST['snipaid_options']['post_status'])
+        ]);
+      }
+      $options = get_option('snipaid_options', ['post_status' => 'draft']);
+      $status = $options['post_status'];
+    
     ?>
+    
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+    </div>
+​
+    <div class="wrap">
+        <form method="post">
             <table class="form-table">
                 <tbody>
                     <tr>
-                        <th scope="row">
-                            <label for="webhook_url">Webhook URL:</label>
-                        </th>
+                        <th scope="row">Post Settings</th>
                         <td>
-                            <p><?php echo esc_attr($webhook_url); ?></p>
+                            <select name="snipaid_options[post_status]">
+                                <option value="draft" <?php selected( $status, 'draft' ); ?>>Draft</option>
+                                <option value="publish" <?php selected( $status, 'publish' ); ?>>Publish</option>
+                            </select>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <input type="submit" name="save_settings" class="button" value="Save Changes">
+        </form>
     </div>
+​
+    <div class="wrap">
+        <form method="post">
+            <table class="form-table">
+                <tbody>
+                    <tr>
+                        <th scope="row">API Key</th>
+                        <td>
+                            <input type="text" name="api_key" value="<?php echo $api_key; ?>" class="regular-text" readonly />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="submit" name="generate_api_key" class="button" value="Generate API Key">
+        </form>
+    </div>
+​
+    <div class="wrap">
+            <table class="form-table">
+                <tbody>
+                    <tr>
+                        <th scope="row">Webhook URL</th>
+                        <td>
+                            <input type="text" name="webhook_url" value="<?php echo esc_attr($webhook_url); ?>" class="regular-text" readonly />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="copy-webhook-url" type="button" class="button">Copy to Clipboard</button>
+    </div>
+    <script>
+        document.getElementById("copy-webhook-url").addEventListener('click', function() {
+        document.querySelector('input[name="webhook_url"]').select();
+        document.execCommand('copy');
+});
+</script>
+​
     <?php
 }
