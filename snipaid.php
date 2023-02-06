@@ -15,7 +15,6 @@
 // prevent direct access to PHP files
 defined( 'ABSPATH' ) or die( 'Error 404' );
 ​
-​
 /**
  * PLUGIN ACTIVATION
  */
@@ -63,19 +62,17 @@ function snipaid_notice(){
  */
 ​
 add_action( 'rest_api_init', function () {
-  register_rest_route( 
-    'snipaid/v1/', 
-    'receive-callback', array(
-        'methods' => 'POST',
-        'callback' => 'snipaid_receive_callback',
-  ) );
+    register_rest_route( 
+        'snipaid/v1/', 
+        'receive-callback', array(
+            'methods' => 'POST',
+            'callback' => 'snipaid_receive_callback',
+    ) );
 } );
 ​
 function snipaid_receive_callback($request_data) {
 	// Initialize an array to store the response
 	$data = array();
-	// Set the status of the response to OK
-	$data['status'] = 'OK';
 	
 	// Get the parameters from the request data
 	$parameters = $request_data->get_params();
