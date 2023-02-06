@@ -25,7 +25,7 @@ register_activation_hook( __FILE__, 'snipaid_activation_hook' );
 register_deactivation_hook(__FILE__, 'snipaid_deactivation_hook');
 ​
 function snipaid_activation_hook() {
-    set_transient( 'sniapid-show-notice', true, 5 );
+    set_transient( 'snipaid-show-notice', true, 5 );
     set_transient('snipaid-activation-redirect', true, 5 );
 }
 ​
@@ -45,17 +45,16 @@ function snipaid_redirect() {
 }
 ​
 add_action( 'admin_notices', 'snipaid_notice' );
-​
 function snipaid_notice(){
     /* Check transient, if available display notice */
-    if( get_transient( 'sniapid-notice-example' ) ){
+    if( get_transient( 'snipaid-show-notice' ) ){
         ?>
         <div class="updated notice is-dismissible">
             <p>Thank you for using this plugin! <strong>You are awesome</strong>.</p>
         </div>
         <?php
         /* Delete transient, only display this notice once. */
-        delete_transient( 'sniapid-notice-example' );
+        delete_transient( 'snipaid-show-notice' );
     }
 }
 ​
