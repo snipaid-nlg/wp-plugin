@@ -22,8 +22,26 @@ defined( 'ABSPATH' ) or die( 'Error 404' );
 ​
 register_activation_hook( __FILE__, 'snipaid_activation_hook' );
 ​
+register_deactivation_hook(__FILE__, 'snipaid_deactivation_hook');
+​
 function snipaid_activation_hook() {
-    set_transient( 'sniapid-notice-example', true, 5 );
+    set_transient( 'sniapid-show-notice', true, 5 );
+    set_transient('snipaid-activation-redirect', true, 5 );
+}
+​
+function snipaid_deactivation_hook() {
+    // actions on plugin deactivation
+}
+​
+add_action('admin_init', 'snipaid_redirect');
+function snipaid_redirect() {
+    if( get_transient( 'snipaid-activation-redirect' ) ) {
+        if(!isset($_GET['activate-multi']))
+        {
+            wp_safe_redirect("options-general.php?page=snipaid");
+        }
+        delete_transient( 'snipaid-activation-redirect' );
+    }
 }
 ​
 add_action( 'admin_notices', 'snipaid_notice' );
