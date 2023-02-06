@@ -80,24 +80,46 @@ function snipaid_receive_callback($request_data) {
 	// Get the parameters from the request data
 	$parameters = $request_data->get_params();
 ​
-	// Extract the title, teaser and full text from the parameters
-	$title = $parameters['title'];
-	$teaser = $parameters['teaser'];
-	$ftext = $parameters['fulltext'];
+    $api_key = $parameters['api_key'];
+    
+    if ($api_key == get_option('snipaid_api_key')) {
+        	// Set the status of the response to OK
+        $data['status'] = 'OK';
 ​
-	// Insert a new post into the WordPress database with the specified title, content, excerpt, status, and post type
-	wp_insert_post(
-		array(
-			'post_title' => $title,
-			'post_content' => $ftext,
-			'post_excerpt' => $teaser,
-			'post_status' => 'publish',
-			'post_type' => 'post'
-		)
-	);
-​
+        // Extract the title, teaser and full text from the parameters
+        $title = $parameters['title'];
+        $teaser = $parameters['teaser'];
+        $ftext = $parameters['fulltext'];
+    
+        // Insert a new post into the WordPress database with the specified title, content, excerpt, status, and post type
+        wp_insert_post(
+            array(
+                'post_title' => $title,
+                'post_content' => $ftext,
+                'post_excerpt' => $teaser,
+                'post_status' => get_option('snipaid_options')['post_status'],
+                'post_type' => 'post'
+            )
+        );
+        
+    } else {
+        
+        $data['status'] = 'Failed';
+        // $data['message'] = 'Parameters Missing!';
+        
+    }
 	// Return the response
 	return $data;
+}
+​
+function generate_and_save_api_key() {
+    // Generate API Key
+    $api_key = md5(uniqid(rand(), true));
+​
+    // Save API Key to database
+    update_option('snipaid_api_key', $api_key);
+​
+    return $api_key;
 }
 ​
 /**
