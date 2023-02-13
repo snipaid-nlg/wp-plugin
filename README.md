@@ -39,7 +39,7 @@ You're good to go!
 
 By default the plugin creates a new Wordpress post with the data it receives and saves it as ***Draft***.
     
-If you'd like the plugin to publish posts directly, go to the plugin's settings page. Change Post Settings to ***Publish*** and ***Save Changes***.  
+If you'd like the plugin to publish posts directly, go to the plugin's settings page. Change Post Settings to ***Publish*** and ***Save Changes***.
 When the plugin receives data now, it will create a post and publish it for you.
     
     
